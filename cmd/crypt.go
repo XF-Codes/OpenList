@@ -34,7 +34,7 @@ var opt options
 // CryptCmd represents the crypt command
 var CryptCmd = &cobra.Command{
 	Use:     "crypt",
-	Short:   "Encrypt or decrypt local file or dir",
+	Short:   "加密或解密本地文件或目录",
 	Example: `openlist crypt  -s ./src/encrypt/ --op=de --pwd=123456 --salt=345678`,
 	Run: func(cmd *cobra.Command, args []string) {
 		opt.validate()
@@ -53,41 +53,41 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	CryptCmd.Flags().StringVarP(&opt.src, "src", "s", "", "src file or dir to encrypt/decrypt")
-	CryptCmd.Flags().StringVarP(&opt.dst, "dst", "d", "", "dst dir to output,if not set,output to src dir")
-	CryptCmd.Flags().StringVar(&opt.op, "op", "", "de or en which stands for decrypt or encrypt")
+	CryptCmd.Flags().StringVarP(&opt.src, "src", "s", "", "要加密/解密的源文件或目录")
+	CryptCmd.Flags().StringVarP(&opt.dst, "dst", "d", "", "输出目标目录，未设置时输出到源目录")
+	CryptCmd.Flags().StringVar(&opt.op, "op", "", "de 或 en，分别表示解密或加密")
 
-	CryptCmd.Flags().StringVar(&opt.pwd, "pwd", "", "password used to encrypt/decrypt,if not contain ___Obfuscated___ prefix,will be obfuscated before used")
-	CryptCmd.Flags().StringVar(&opt.salt, "salt", "", "salt used to encrypt/decrypt,if not contain ___Obfuscated___ prefix,will be obfuscated before used")
-	CryptCmd.Flags().StringVar(&opt.filenameEncryption, "filename-encrypt", "off", "filename encryption mode: off,standard,obfuscate")
-	CryptCmd.Flags().StringVar(&opt.dirnameEncryption, "dirname-encrypt", "false", "is dirname encryption enabled:true,false")
-	CryptCmd.Flags().StringVar(&opt.filenameEncode, "filename-encode", "base64", "filename encoding mode: base64,base32,base32768")
-	CryptCmd.Flags().StringVar(&opt.suffix, "suffix", ".bin", "suffix for encrypted file,default is .bin")
+	CryptCmd.Flags().StringVar(&opt.pwd, "pwd", "", "用于加密/解密的密码；若不含 ___Obfuscated___ 前缀，使用前会先进行混淆处理")
+	CryptCmd.Flags().StringVar(&opt.salt, "salt", "", "用于加密/解密的盐值；若不含 ___Obfuscated___ 前缀，使用前会先进行混淆处理")
+	CryptCmd.Flags().StringVar(&opt.filenameEncryption, "filename-encrypt", "off", "文件名加密模式：off、standard、obfuscate")
+	CryptCmd.Flags().StringVar(&opt.dirnameEncryption, "dirname-encrypt", "false", "是否启用目录名加密：true、false")
+	CryptCmd.Flags().StringVar(&opt.filenameEncode, "filename-encode", "base64", "文件名编码模式：base64、base32、base32768")
+	CryptCmd.Flags().StringVar(&opt.suffix, "suffix", ".bin", "加密文件的后缀，默认为 .bin")
 }
 
 func (o *options) validate() {
 	if o.src == "" {
-		log.Fatal("src can not be empty")
+		log.Fatal("src 不能为空")
 	}
 	if o.op != "encrypt" && o.op != "decrypt" && o.op != "en" && o.op != "de" {
-		log.Fatal("op must be encrypt or decrypt")
+		log.Fatal("op 必须是 encrypt 或 decrypt")
 	}
 	if o.filenameEncryption != "off" && o.filenameEncryption != "standard" && o.filenameEncryption != "obfuscate" {
-		log.Fatal("filename_encryption must be off,standard,obfuscate")
+		log.Fatal("filename_encryption 必须是 off、standard、obfuscate")
 	}
 	if o.filenameEncode != "base64" && o.filenameEncode != "base32" && o.filenameEncode != "base32768" {
-		log.Fatal("filename_encode must be base64,base32,base32768")
+		log.Fatal("filename_encode 必须是 base64、base32、base32768")
 	}
 
 }
 
 func (o *options) cryptFileDir() {
 	src, _ := filepath.Abs(o.src)
-	log.Infof("src abs is %v", src)
+	log.Infof("源绝对路径为 %v", src)
 
 	fileInfo, err := os.Stat(src)
 	if err != nil {
-		log.Fatalf("reading file/dir %v failed,err:%v", src, err)
+		log.Fatalf("读取文件/目录 %v 失败，错误: %v", src, err)
 
 	}
 	pwd := updateObfusParm(o.pwd)
@@ -103,10 +103,10 @@ func (o *options) cryptFileDir() {
 		"suffix":                    o.suffix,
 		"pass_bad_blocks":           "",
 	}
-	log.Infof("config:%v", config)
+	log.Infof("配置: %v", config)
 	cipher, err := rcCrypt.NewCipher(config)
 	if err != nil {
-		log.Fatalf("create cipher failed,err:%v", err)
+		log.Fatalf("创建加密器失败，错误: %v", err)
 
 	}
 	dst := ""
@@ -130,24 +130,24 @@ func (o *options) cryptFileDir() {
 		//if src is dir and not set dst dir ,create ${src}_crypt dir as dst dir
 		dst = path.Join(filepath.Dir(src), fileInfo.Name()+"_crypt")
 	}
-	log.Infof("dst : %v", dst)
+	log.Infof("目标路径: %v", dst)
 
 	dirnameMap := make(map[string]string)
 	pathSeparator := string(os.PathSeparator)
 
 	filepath.Walk(src, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Errorf("get file %v info failed, err:%v", p, err)
+			log.Errorf("获取文件 %v 信息失败，错误: %v", p, err)
 			return err
 		}
 		if p == src {
 			return nil
 		}
-		log.Infof("current path %v", p)
+		log.Infof("当前路径 %v", p)
 
 		// relative path
 		rp := strings.ReplaceAll(p, src, "")
-		log.Infof("relative path %v", rp)
+		log.Infof("相对路径 %v", rp)
 
 		rpds := strings.Split(rp, pathSeparator)
 
@@ -175,7 +175,7 @@ func (o *options) cryptFileDir() {
 						} else {
 							dnn, err := cipher.DecryptDirName(rpds[i])
 							if err != nil {
-								log.Fatalf("decrypt dir name %v failed,err:%v", rpds[i], err)
+								log.Fatalf("解密目录名 %v 失败，错误: %v", rpds[i], err)
 							}
 							rpds[i] = dnn
 							dirnameMap[oname] = dnn
@@ -189,7 +189,7 @@ func (o *options) cryptFileDir() {
 				dd = path.Join(dst, rp)
 			}
 
-			log.Infof("create output dir %v", dd)
+			log.Infof("创建输出目录 %v", dd)
 			checkCreateDir(dd)
 			return nil
 		}
@@ -209,7 +209,7 @@ func (o *options) cryptFileDir() {
 			fdd = path.Join(fdd, strings.Join(rpds[:len(rpds)-1], pathSeparator))
 		}
 
-		log.Infof("file output dir %v", fdd)
+		log.Infof("文件输出目录 %v", fdd)
 		o.cryptFile(cipher, p, fdd)
 		return nil
 	})
@@ -219,12 +219,12 @@ func (o *options) cryptFileDir() {
 func (o *options) cryptFile(cipher *rcCrypt.Cipher, src string, dst string) {
 	fileInfo, err := os.Stat(src)
 	if err != nil {
-		log.Fatalf("get file %v  info failed,err:%v", src, err)
+		log.Fatalf("获取文件 %v 信息失败，错误: %v", src, err)
 
 	}
 	fd, err := os.OpenFile(src, os.O_RDWR, 0666)
 	if err != nil {
-		log.Fatalf("open file %v failed,err:%v", src, err)
+		log.Fatalf("打开文件 %v 失败，错误: %v", src, err)
 
 	}
 	defer fd.Close()
@@ -235,13 +235,13 @@ func (o *options) cryptFile(cipher *rcCrypt.Cipher, src string, dst string) {
 		filename := fileInfo.Name()
 		if o.filenameEncryption != "off" {
 			filename = cipher.EncryptFileName(fileInfo.Name())
-			log.Infof("encrypt file name %v to %v", fileInfo.Name(), filename)
+			log.Infof("加密文件名 %v 为 %v", fileInfo.Name(), filename)
 		} else {
 			filename = fileInfo.Name() + o.suffix
 		}
 		cryptSrcReader, err = cipher.EncryptData(fd)
 		if err != nil {
-			log.Fatalf("encrypt file %v failed,err:%v", src, err)
+			log.Fatalf("加密文件 %v 失败，错误: %v", src, err)
 
 		}
 		outFile = path.Join(dst, filename)
@@ -250,16 +250,16 @@ func (o *options) cryptFile(cipher *rcCrypt.Cipher, src string, dst string) {
 		if o.filenameEncryption != "off" {
 			filename, err = cipher.DecryptFileName(filename)
 			if err != nil {
-				log.Fatalf("decrypt file name %v failed,err:%v", src, err)
+				log.Fatalf("解密文件名 %v 失败，错误: %v", src, err)
 			}
-			log.Infof("decrypt file name %v to %v, ", fileInfo.Name(), filename)
+			log.Infof("解密文件名 %v 为 %v, ", fileInfo.Name(), filename)
 		} else {
 			filename = strings.TrimSuffix(filename, o.suffix)
 		}
 
 		cryptSrcReader, err = cipher.DecryptData(fd)
 		if err != nil {
-			log.Fatalf("decrypt file %v failed,err:%v", src, err)
+			log.Fatalf("解密文件 %v 失败，错误: %v", src, err)
 
 		}
 		outFile = path.Join(dst, filename)
@@ -267,14 +267,14 @@ func (o *options) cryptFile(cipher *rcCrypt.Cipher, src string, dst string) {
 	//write new file
 	wr, err := os.OpenFile(outFile, os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
-		log.Fatalf("create file %v failed,err:%v", outFile, err)
+		log.Fatalf("创建文件 %v 失败，错误: %v", outFile, err)
 
 	}
 	defer wr.Close()
 
 	_, err = io.Copy(wr, cryptSrcReader)
 	if err != nil {
-		log.Fatalf("write file %v failed,err:%v", outFile, err)
+		log.Fatalf("写入文件 %v 失败，错误: %v", outFile, err)
 	}
 
 }
@@ -286,11 +286,11 @@ func checkCreateDir(dir string) {
 	if os.IsNotExist(err) {
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
-			log.Fatalf("create dir %v failed,err:%v", dir, err)
+			log.Fatalf("创建目录 %v 失败，错误: %v", dir, err)
 		}
 		return
 	} else if err != nil {
-		log.Fatalf("read dir %v err: %v", dir, err)
+		log.Fatalf("读取目录 %v 出错: %v", dir, err)
 	}
 
 }
@@ -300,7 +300,7 @@ func updateObfusParm(str string) string {
 	if !strings.HasPrefix(str, obfuscatedPrefix) {
 		str, err := obscure.Obscure(str)
 		if err != nil {
-			log.Fatalf("update obfuscated parameter failed,err:%v", str)
+			log.Fatalf("更新混淆参数失败，错误: %v", str)
 		}
 	} else {
 		str, _ = strings.CutPrefix(str, obfuscatedPrefix)

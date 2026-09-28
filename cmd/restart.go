@@ -10,7 +10,7 @@ import (
 // RestartCmd represents the restart command
 var RestartCmd = &cobra.Command{
 	Use:   "restart",
-	Short: "Restart openlist server by daemon/pid file",
+	Short: "根据 daemon/pid 文件重启 openlist 服务",
 	Run: func(cmd *cobra.Command, args []string) {
 		stop()
 		start()

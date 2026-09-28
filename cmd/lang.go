@@ -42,36 +42,36 @@ func convert(s string) string {
 func writeFile(name string, data interface{}) {
 	f, err := os.Open(fmt.Sprintf("%s/src/lang/en/%s.json", frontendPath, name))
 	if err != nil {
-		log.Errorf("failed to open %s.json: %+v", name, err)
+		log.Errorf("打开 %s.json 失败: %+v", name, err)
 		return
 	}
 	defer f.Close()
 	content, err := io.ReadAll(f)
 	if err != nil {
-		log.Errorf("failed to read %s.json: %+v", name, err)
+		log.Errorf("读取 %s.json 失败: %+v", name, err)
 		return
 	}
 	oldData := make(map[string]interface{})
 	newData := make(map[string]interface{})
 	err = utils.Json.Unmarshal(content, &oldData)
 	if err != nil {
-		log.Errorf("failed to unmarshal %s.json: %+v", name, err)
+		log.Errorf("解析 %s.json 失败: %+v", name, err)
 		return
 	}
 	content, err = utils.Json.Marshal(data)
 	if err != nil {
-		log.Errorf("failed to marshal json: %+v", err)
+		log.Errorf("序列化 json 失败: %+v", err)
 		return
 	}
 	err = utils.Json.Unmarshal(content, &newData)
 	if err != nil {
-		log.Errorf("failed to unmarshal json: %+v", err)
+		log.Errorf("反序列化 json 失败: %+v", err)
 		return
 	}
 	if mergeJson(newData, oldData) {
-		log.Infof("%s.json no changed, skip", name)
+		log.Infof("%s.json 无变化，跳过", name)
 	} else {
-		log.Infof("%s.json changed, update file", name)
+		log.Infof("%s.json 有变化，更新文件", name)
 		//log.Infof("old: %+v\nnew:%+v", oldData, data)
 		utils.WriteJsonToFile(fmt.Sprintf("lang/%s.json", name), oldData, true)
 	}
@@ -155,13 +155,13 @@ func generateSettingsJson() {
 // LangCmd represents the lang command
 var LangCmd = &cobra.Command{
 	Use:   "lang",
-	Short: "Generate language json file",
+	Short: "生成语言 json 文件",
 	Run: func(cmd *cobra.Command, args []string) {
 		frontendPath, _ = cmd.Flags().GetString("frontend-path")
 		bootstrap.InitConfig()
 		err := os.MkdirAll("lang", 0777)
 		if err != nil {
-			utils.Log.Fatalf("failed create folder: %s", err.Error())
+			utils.Log.Fatalf("创建文件夹失败: %s", err.Error())
 		}
 		generateDriversJson()
 		generateSettingsJson()
@@ -172,7 +172,7 @@ func init() {
 	RootCmd.AddCommand(LangCmd)
 
 	// Add frontend-path flag
-	LangCmd.Flags().String("frontend-path", "../OpenList-Frontend", "Path to the frontend project directory")
+	LangCmd.Flags().String("frontend-path", "../OpenList-Frontend", "前端项目目录的路径")
 
 	// Here you will define your flags and configuration settings.
 

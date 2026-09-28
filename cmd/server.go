@@ -13,9 +13,9 @@ import (
 // ServerCmd represents the server command
 var ServerCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Start the server at the specified address",
-	Long: `Start the server at the specified address
-the address is defined in config file`,
+	Short: "在指定地址启动服务",
+	Long: `在指定地址启动服务
+地址在配置文件中定义`,
 	Run: func(cmd *cobra.Command, args []string) {
 		bootstrap.Init()
 		defer bootstrap.Release()

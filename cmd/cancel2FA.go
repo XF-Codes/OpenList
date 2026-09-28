@@ -15,20 +15,20 @@ import (
 // Cancel2FACmd represents the delete2fa command
 var Cancel2FACmd = &cobra.Command{
 	Use:   "cancel2fa",
-	Short: "Delete 2FA of admin user",
+	Short: "删除管理员用户的两步验证（2FA）",
 	Run: func(cmd *cobra.Command, args []string) {
 		bootstrap.Init()
 		defer bootstrap.Release()
 		admin, err := op.GetAdmin()
 		if err != nil {
-			utils.Log.Errorf("failed to get admin user: %+v", err)
+			utils.Log.Errorf("获取管理员用户失败: %+v", err)
 		} else {
 			err := op.Cancel2FAByUser(admin)
 			if err != nil {
-				utils.Log.Errorf("failed to cancel 2FA: %+v", err)
+				utils.Log.Errorf("取消两步验证失败: %+v", err)
 			} else {
-				utils.Log.Infof("2FA is canceled from CLI")
-				fmt.Println("2FA canceled")
+				utils.Log.Infof("已从命令行取消两步验证")
+				fmt.Println("已取消两步验证")
 				DelAdminCacheOnline()
 			}
 		}

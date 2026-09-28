@@ -19,28 +19,28 @@ import (
 var AdminCmd = &cobra.Command{
 	Use:     "admin",
 	Aliases: []string{"password"},
-	Short:   "Show admin user's info and some operations about admin user's password",
+	Short:   "查看管理员信息，以及执行与管理员密码相关的操作",
 	Run: func(cmd *cobra.Command, args []string) {
 		bootstrap.Init()
 		defer bootstrap.Release()
 		admin, err := op.GetAdmin()
 		if err != nil {
-			utils.Log.Errorf("failed get admin user: %+v", err)
+			utils.Log.Errorf("获取管理员用户失败: %+v", err)
 		} else {
-			utils.Log.Infof("get admin user from CLI")
-			fmt.Println("Admin user's username:", admin.Username)
-			fmt.Println("The password can only be output at the first startup, and then stored as a hash value, which cannot be reversed")
-			fmt.Println("You can reset the password with a random string by running [openlist admin random]")
-			fmt.Println("You can also set a new password by running [openlist admin set NEW_PASSWORD]")
+			utils.Log.Infof("已从命令行获取管理员用户")
+			fmt.Println("管理员用户名:", admin.Username)
+			fmt.Println("密码仅在首次启动时输出，之后以哈希值存储，无法还原")
+			fmt.Println("可以通过执行 [openlist admin random] 将密码重置为随机字符串")
+			fmt.Println("也可以通过执行 [openlist admin set 新密码] 设置新密码")
 		}
 	},
 }
 
 var RandomPasswordCmd = &cobra.Command{
 	Use:   "random",
-	Short: "Reset admin user's password to a random string",
+	Short: "将管理员密码重置为随机字符串",
 	Run: func(cmd *cobra.Command, args []string) {
-		utils.Log.Infof("reset admin user's password to a random string from CLI")
+		utils.Log.Infof("已从命令行将管理员密码重置为随机字符串")
 		newPwd := random.String(8)
 		setAdminPassword(newPwd)
 	},
@@ -48,10 +48,10 @@ var RandomPasswordCmd = &cobra.Command{
 
 var SetPasswordCmd = &cobra.Command{
 	Use:   "set",
-	Short: "Set admin user's password",
+	Short: "设置管理员密码",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return fmt.Errorf("Please enter the new password")
+			return fmt.Errorf("请输入新密码")
 		}
 		setAdminPassword(args[0])
 		return nil
@@ -60,13 +60,13 @@ var SetPasswordCmd = &cobra.Command{
 
 var ShowTokenCmd = &cobra.Command{
 	Use:   "token",
-	Short: "Show admin token",
+	Short: "显示管理员令牌",
 	Run: func(cmd *cobra.Command, args []string) {
 		bootstrap.Init()
 		defer bootstrap.Release()
 		token := setting.GetStr(conf.Token)
-		utils.Log.Infof("show admin token from CLI")
-		fmt.Println("Admin token:", token)
+		utils.Log.Infof("已从命令行显示管理员令牌")
+		fmt.Println("管理员令牌:", token)
 	},
 }
 
@@ -75,18 +75,18 @@ func setAdminPassword(pwd string) {
 	defer bootstrap.Release()
 	admin, err := op.GetAdmin()
 	if err != nil {
-		utils.Log.Errorf("failed get admin user: %+v", err)
+		utils.Log.Errorf("获取管理员用户失败: %+v", err)
 		return
 	}
 	admin.SetPassword(pwd)
 	if err := op.UpdateUser(admin); err != nil {
-		utils.Log.Errorf("failed update admin user: %+v", err)
+		utils.Log.Errorf("更新管理员用户失败: %+v", err)
 		return
 	}
-	utils.Log.Infof("admin user has been update from CLI")
-	fmt.Println("admin user has been updated:")
-	fmt.Println("username:", admin.Username)
-	fmt.Println("password:", pwd)
+	utils.Log.Infof("已从命令行更新管理员用户")
+	fmt.Println("管理员用户已更新：")
+	fmt.Println("用户名:", admin.Username)
+	fmt.Println("密码:", pwd)
 	DelAdminCacheOnline()
 }
 

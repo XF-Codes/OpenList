@@ -15,16 +15,16 @@ import (
 // VersionCmd represents the version command
 var VersionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Show current version of OpenList",
+	Short: "显示 OpenList 当前版本",
 	Run: func(cmd *cobra.Command, args []string) {
 		goVersion := fmt.Sprintf("%s %s/%s", runtime.Version(), runtime.GOOS, runtime.GOARCH)
 
-		fmt.Printf(`Built At: %s
-Go Version: %s
-Author: %s
-Commit ID: %s
-Version: %s
-WebVersion: %s
+		fmt.Printf(`构建时间: %s
+Go 版本: %s
+作者: %s
+提交 ID: %s
+版本: %s
+前端版本: %s
 `, conf.BuiltAt, goVersion, conf.GitAuthor, conf.GitCommit, conf.Version, conf.WebVersion)
 		os.Exit(0)
 	},

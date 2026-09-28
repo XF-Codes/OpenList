@@ -9,7 +9,7 @@ import (
 // StopCmd represents the stop command
 var StopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Same as the kill command",
+	Short: "等同于 kill 命令",
 	Run: func(cmd *cobra.Command, args []string) {
 		stop()
 	},

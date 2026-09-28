@@ -32,11 +32,11 @@ func initDaemon() {
 	if utils.Exists(pidFile) {
 		bytes, err := os.ReadFile(pidFile)
 		if err != nil {
-			log.Fatal("failed to read pid file", err)
+			log.Fatal("读取 pid 文件失败", err)
 		}
 		id, err := strconv.Atoi(string(bytes))
 		if err != nil {
-			log.Fatal("failed to parse pid data", err)
+			log.Fatal("解析 pid 数据失败", err)
 		}
 		pid = id
 	}

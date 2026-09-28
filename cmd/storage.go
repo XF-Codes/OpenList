@@ -20,52 +20,52 @@ import (
 // storageCmd represents the storage command
 var storageCmd = &cobra.Command{
 	Use:   "storage",
-	Short: "Manage storage",
+	Short: "管理存储",
 }
 
 var disableStorageCmd = &cobra.Command{
-	Use:   "disable [mount path]",
-	Short: "Disable a storage by mount path",
+	Use:   "disable [挂载路径]",
+	Short: "根据挂载路径禁用某个存储",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("mount path is required")
+			return fmt.Errorf("必须提供挂载路径")
 		}
 		mountPath := args[0]
 		bootstrap.Init()
 		defer bootstrap.Release()
 		storage, err := db.GetStorageByMountPath(mountPath)
 		if err != nil {
-			return fmt.Errorf("failed to query storage: %+v", err)
+			return fmt.Errorf("查询存储失败: %+v", err)
 		}
 		storage.Disabled = true
 		err = db.UpdateStorage(storage)
 		if err != nil {
-			return fmt.Errorf("failed to update storage: %+v", err)
+			return fmt.Errorf("更新存储失败: %+v", err)
 		}
-		utils.Log.Infof("Storage with mount path [%s] has been disabled from CLI", mountPath)
-		fmt.Printf("Storage with mount path [%s] has been disabled\n", mountPath)
+		utils.Log.Infof("已从命令行禁用挂载路径为 [%s] 的存储", mountPath)
+		fmt.Printf("挂载路径为 [%s] 的存储已禁用\n", mountPath)
 		return nil
 	},
 }
 
 var deleteStorageCmd = &cobra.Command{
 	Use:   "delete [id]",
-	Short: "Delete a storage by id",
+	Short: "根据 id 删除某个存储",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return fmt.Errorf("id is required")
+			return fmt.Errorf("必须提供 id")
 		}
 		id, err := strconv.Atoi(args[0])
 		if err != nil {
-			return fmt.Errorf("id must be a number")
+			return fmt.Errorf("id 必须是数字")
 		}
 
 		if force, _ := cmd.Flags().GetBool("force"); force {
-			fmt.Printf("Are you sure you want to delete storage with id [%d]? [y/N]: ", id)
+			fmt.Printf("确定要删除 id 为 [%d] 的存储吗？[y/N]: ", id)
 			var confirm string
 			fmt.Scanln(&confirm)
 			if confirm != "y" && confirm != "Y" {
-				fmt.Println("Delete operation cancelled.")
+				fmt.Println("已取消删除操作。")
 				return nil
 			}
 		}
@@ -74,10 +74,10 @@ var deleteStorageCmd = &cobra.Command{
 		defer bootstrap.Release()
 		err = db.DeleteStorageById(uint(id))
 		if err != nil {
-			return fmt.Errorf("failed to delete storage by id: %+v", err)
+			return fmt.Errorf("根据 id 删除存储失败: %+v", err)
 		}
-		utils.Log.Infof("Storage with id [%d] have been deleted from CLI", id)
-		fmt.Printf("Storage with id [%d] have been deleted\n", id)
+		utils.Log.Infof("已从命令行删除 id 为 [%d] 的存储", id)
+		fmt.Printf("id 为 [%d] 的存储已删除\n", id)
 		return nil
 	},
 }
@@ -122,28 +122,28 @@ func (m model) View() string {
 var storageTableHeight int
 var listStorageCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all storages",
+	Short: "列出所有存储",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		bootstrap.Init()
 		defer bootstrap.Release()
 		storages, _, err := db.GetStorages(1, -1)
 		if err != nil {
-			return fmt.Errorf("failed to query storages: %+v", err)
+			return fmt.Errorf("查询存储列表失败: %+v", err)
 		} else {
-			fmt.Printf("Found %d storages\n", len(storages))
+			fmt.Printf("共找到 %d 个存储\n", len(storages))
 			columns := []table.Column{
 				{Title: "ID", Width: 4},
-				{Title: "Driver", Width: 16},
-				{Title: "Mount Path", Width: 30},
-				{Title: "Enabled", Width: 7},
+				{Title: "驱动", Width: 16},
+				{Title: "挂载路径", Width: 30},
+				{Title: "已启用", Width: 7},
 			}
 
 			var rows []table.Row
 			for i := range storages {
 				storage := storages[i]
-				enabled := "true"
+				enabled := "是"
 				if storage.Disabled {
-					enabled = "false"
+					enabled = "否"
 				}
 				rows = append(rows, table.Row{
 					strconv.Itoa(int(storage.ID)),
@@ -173,7 +173,7 @@ var listStorageCmd = &cobra.Command{
 
 			m := model{t}
 			if _, err := tea.NewProgram(m).Run(); err != nil {
-				fmt.Printf("failed to run program: %+v\n", err)
+				fmt.Printf("运行程序失败: %+v\n", err)
 				os.Exit(1)
 			}
 		}
@@ -186,9 +186,9 @@ func init() {
 	RootCmd.AddCommand(storageCmd)
 	storageCmd.AddCommand(disableStorageCmd)
 	storageCmd.AddCommand(listStorageCmd)
-	storageCmd.PersistentFlags().IntVarP(&storageTableHeight, "height", "H", 10, "Table height")
+	storageCmd.PersistentFlags().IntVarP(&storageTableHeight, "height", "H", 10, "表格高度")
 	storageCmd.AddCommand(deleteStorageCmd)
-	deleteStorageCmd.Flags().BoolP("force", "f", false, "Force delete without confirmation")
+	deleteStorageCmd.Flags().BoolP("force", "f", false, "强制删除，无需确认")
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
