@@ -34,6 +34,10 @@ func setLog(l *logrus.Logger) {
 	}
 }
 
+// CLIMode 由 cmd 包在运行非 server 子命令（admin / storage / cancel2fa 等）时置为 true。
+// 开启后日志会同时写到控制台，避免命令行反馈只进日志文件、控制台看起来像卡住。
+var CLIMode bool
+
 func Log() {
 	setLog(logrus.StandardLogger())
 	setLog(utils.Log)
@@ -46,7 +50,7 @@ func Log() {
 			MaxAge:     logConfig.MaxAge,   //days
 			Compress:   logConfig.Compress, // disabled by default
 		}
-		if flags.Debug || flags.Dev || flags.LogStd {
+		if flags.Debug || flags.Dev || flags.LogStd || CLIMode {
 			w = io.MultiWriter(os.Stdout, w)
 		}
 		logrus.SetOutput(w)

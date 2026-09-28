@@ -15,7 +15,7 @@ import (
 // VersionCmd represents the version command
 var VersionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "显示 OpenList 当前版本",
+	Short: "显示 " + appName + " 当前版本",
 	Run: func(cmd *cobra.Command, args []string) {
 		goVersion := fmt.Sprintf("%s %s/%s", runtime.Version(), runtime.GOOS, runtime.GOARCH)
 

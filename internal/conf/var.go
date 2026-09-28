@@ -12,6 +12,9 @@ var (
 	GitCommit  string = "unknown"
 	Version    string = "dev"
 	WebVersion string = "rolling"
+	// AppName 是程序名，用于命令行帮助与提示文案。
+	// 默认 openlist，构建时可通过 -ldflags "-X .../internal/conf.AppName=xxx" 注入。
+	AppName string = "openlist"
 )
 
 var (

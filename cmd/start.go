@@ -17,7 +17,7 @@ import (
 // StartCmd represents the start command
 var StartCmd = &cobra.Command{
 	Use:   "start",
-	Short: "以 `--force-bin-dir` 静默启动 openlist 服务",
+	Short: "以 `--force-bin-dir` 静默启动 " + appName + " 服务",
 	Run: func(cmd *cobra.Command, args []string) {
 		start()
 	},
@@ -28,7 +28,7 @@ func start() {
 	if pid != -1 {
 		_, err := os.FindProcess(pid)
 		if err == nil {
-			log.Info("openlist 已启动，pid ", pid)
+			log.Info(appName+" 已启动，pid ", pid)
 			return
 		}
 	}
@@ -62,7 +62,7 @@ func start() {
 	log.Infof("启动成功，pid: %d", cmd.Process.Pid)
 	err = os.WriteFile(pidFile, []byte(strconv.Itoa(cmd.Process.Pid)), 0666)
 	if err != nil {
-		log.Warn("记录 pid 失败，你可能无法通过 `./openlist stop` 停止程序")
+		log.Warn("记录 pid 失败，你可能无法通过 `./" + appName + " stop` 停止程序")
 	}
 }
 

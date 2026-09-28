@@ -29,6 +29,7 @@ output/
 /log/
 /lang/
 /daemon/
+.workbuddy-ai
 /public/dist/*
 !/public/dist/README.md
 

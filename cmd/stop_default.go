@@ -13,7 +13,7 @@ import (
 // StopCmd represents the stop command
 var StopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "根据 daemon/pid 文件停止 openlist 服务",
+	Short: "根据 daemon/pid 文件停止 " + appName + " 服务",
 	Run: func(cmd *cobra.Command, args []string) {
 		stop()
 	},
@@ -22,7 +22,7 @@ var StopCmd = &cobra.Command{
 func stop() {
 	initDaemon()
 	if pid == -1 {
-		log.Info("似乎尚未启动。请尝试使用 `openlist start` 启动服务。")
+		log.Info("似乎尚未启动。请尝试使用 `" + appName + " start` 启动服务。")
 		return
 	}
 	process, err := os.FindProcess(pid)

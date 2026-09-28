@@ -71,7 +71,7 @@ func FsListSplit(c *gin.Context) {
 	}
 	user := c.Request.Context().Value(conf.UserKey).(*model.User)
 	if user.IsGuest() && user.Disabled {
-		common.ErrorStrResp(c, "Guest user is disabled, login please", 401)
+		common.ErrorStrResp(c, "游客用户已被禁用，请登录", 401)
 		return
 	}
 	FsList(c, &req, user)
@@ -274,7 +274,7 @@ func FsGetSplit(c *gin.Context) {
 	}
 	user := c.Request.Context().Value(conf.UserKey).(*model.User)
 	if user.IsGuest() && user.Disabled {
-		common.ErrorStrResp(c, "Guest user is disabled, login please", 401)
+		common.ErrorStrResp(c, "游客用户已被禁用，请登录", 401)
 		return
 	}
 	FsGet(c, &req, user)

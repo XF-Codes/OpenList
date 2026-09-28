@@ -7,12 +7,18 @@ import (
 	"github.com/OpenListTeam/OpenList/v4/cmd/flags"
 	_ "github.com/OpenListTeam/OpenList/v4/drivers"
 	_ "github.com/OpenListTeam/OpenList/v4/internal/archive"
+	"github.com/OpenListTeam/OpenList/v4/internal/bootstrap"
+	"github.com/OpenListTeam/OpenList/v4/internal/conf"
 	_ "github.com/OpenListTeam/OpenList/v4/internal/offline_download"
 	"github.com/spf13/cobra"
 )
 
+// appName 是程序名，取自 conf.AppName（默认 openlist，可由构建脚本通过 ldflags 注入）。
+// 命令行帮助、示例、提示里的命令名统一引用它，改构建名即可整站生效。
+var appName = conf.AppName
+
 var RootCmd = &cobra.Command{
-	Use:   "openlist",
+	Use:   appName,
 	Short: "一个支持多种存储的文件列表程序。",
 	Long: `一个支持多种存储的文件列表程序，
 由 OpenListTeam 用爱构建。
@@ -24,6 +30,13 @@ func Execute() {
 	localizeCobra()
 	// 关闭 cobra 默认的英文错误前缀（Error:），由下方统一输出中文提示
 	RootCmd.SilenceErrors = true
+	// 非 server 子命令（admin / storage / cancel2fa 等）把日志同时输出到控制台，
+	// 否则在 log.enable=true 时反馈只进日志文件，命令行看起来像卡住
+	RootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		if cmd.Name() != "server" {
+			bootstrap.CLIMode = true
+		}
+	}
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, "错误:", localizeError(err))
 		os.Exit(1)

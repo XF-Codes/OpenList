@@ -35,7 +35,7 @@ var opt options
 var CryptCmd = &cobra.Command{
 	Use:     "crypt",
 	Short:   "加密或解密本地文件或目录",
-	Example: `openlist crypt  -s ./src/encrypt/ --op=de --pwd=123456 --salt=345678`,
+	Example: appName + ` crypt  -s ./src/encrypt/ --op=de --pwd=123456 --salt=345678`,
 	Run: func(cmd *cobra.Command, args []string) {
 		opt.validate()
 		opt.cryptFileDir()

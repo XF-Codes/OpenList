@@ -15,6 +15,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// hintAdminNotInitialized 在管理员账号尚不存在时给出可操作的提示。
+// 本项目的 initAdmin 不再自动创建管理员，需要走 Web 安装向导或显式设置环境变量。
+func hintAdminNotInitialized() {
+	fmt.Println("管理员账号尚未创建。请先启动服务并通过 Web 安装向导（访问 / 页面）完成初始化，")
+	fmt.Println("或设置环境变量 OPENLIST_ADMIN_PASSWORD 后再启动服务，会自动创建管理员。")
+}
+
 // AdminCmd represents the password command
 var AdminCmd = &cobra.Command{
 	Use:     "admin",
@@ -26,12 +33,13 @@ var AdminCmd = &cobra.Command{
 		admin, err := op.GetAdmin()
 		if err != nil {
 			utils.Log.Errorf("获取管理员用户失败: %+v", err)
+			hintAdminNotInitialized()
 		} else {
 			utils.Log.Infof("已从命令行获取管理员用户")
 			fmt.Println("管理员用户名:", admin.Username)
 			fmt.Println("密码仅在首次启动时输出，之后以哈希值存储，无法还原")
-			fmt.Println("可以通过执行 [openlist admin random] 将密码重置为随机字符串")
-			fmt.Println("也可以通过执行 [openlist admin set 新密码] 设置新密码")
+			fmt.Println("可以通过执行 [" + appName + " admin random] 将密码重置为随机字符串")
+			fmt.Println("也可以通过执行 [" + appName + " admin set 新密码] 设置新密码")
 		}
 	},
 }
@@ -76,6 +84,7 @@ func setAdminPassword(pwd string) {
 	admin, err := op.GetAdmin()
 	if err != nil {
 		utils.Log.Errorf("获取管理员用户失败: %+v", err)
+		hintAdminNotInitialized()
 		return
 	}
 	admin.SetPassword(pwd)

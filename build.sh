@@ -1,5 +1,6 @@
 set -e
-appName="openlist"
+# 产物基础名，可通过环境变量 APP_NAME 覆盖（与 build.bat 保持一致）
+appName="${APP_NAME:-openlist}"
 builtAt="$(date +'%F %T %z')"
 gitAuthor="The OpenList Projects Contributors <noreply@oplist.org>"
 gitCommit=$(git log --pretty=format:"%h" -1)
@@ -41,6 +42,7 @@ fi
 
 ldflags="\
 -w -s \
+-X 'github.com/OpenListTeam/OpenList/v4/internal/conf.AppName=$appName' \
 -X 'github.com/OpenListTeam/OpenList/v4/internal/conf.BuiltAt=$builtAt' \
 -X 'github.com/OpenListTeam/OpenList/v4/internal/conf.GitAuthor=$gitAuthor' \
 -X 'github.com/OpenListTeam/OpenList/v4/internal/conf.GitCommit=$gitCommit' \

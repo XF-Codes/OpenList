@@ -10,7 +10,7 @@ import (
 // KillCmd represents the kill command
 var KillCmd = &cobra.Command{
 	Use:   "kill",
-	Short: "根据 daemon/pid 文件强制结束 openlist 服务进程",
+	Short: "根据 daemon/pid 文件强制结束 " + appName + " 服务进程",
 	Run: func(cmd *cobra.Command, args []string) {
 		kill()
 	},
@@ -19,7 +19,7 @@ var KillCmd = &cobra.Command{
 func kill() {
 	initDaemon()
 	if pid == -1 {
-		log.Info("似乎尚未启动。请尝试使用 `openlist start` 启动服务。")
+		log.Info("似乎尚未启动。请尝试使用 `" + appName + " start` 启动服务。")
 		return
 	}
 	process, err := os.FindProcess(pid)
