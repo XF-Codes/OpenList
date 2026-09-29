@@ -488,6 +488,18 @@ export const globalStyles = globalCss({
   'html[data-ad-theme="on"] .ad-sidebar': {
     backgroundColor: "transparent !important",
     boxShadow: "none !important",
+    // 列位置写死：侧栏固定占第 1 列。配合下面主舞台的 `2 / -1`，
+    // 任一方被隐藏时另一方都不会掉进 240px 的窄列（否则主内容会被压成一条）。
+    gridColumn: "1",
+  },
+  // `2 / -1` = 从第 2 列一直到最后一列。侧栏不在时 `1fr` 会吃满整行，
+  // 主内容自动变宽，不会出现「面包屑被压成每行一个字」那种塌陷。
+  'html[data-ad-theme="on"] .ad-main-stage': {
+    gridColumn: "2 / -1",
+  },
+  // 仅窄屏出现的元素（汉堡按钮 / 搜索图标）。!important 用来压过 .ad-nav-btn 的 display:flex。
+  'html[data-ad-theme="on"] .ad-mobile-only': {
+    display: "none !important",
   },
   // 侧栏条目：悬停浅白；选中白底 + 主色字 + 阴影（.nav-item.active a）
   'html[data-ad-theme="on"] .ad-nav-item:hover': {
@@ -582,11 +594,41 @@ export const globalStyles = globalCss({
       },
     },
   },
-  // ── 响应式（设计稿的 @media (max-width: 900px)）─────────────────────────
-  //   .app-container { grid-template-columns: 1fr }
-  //   .sidebar       { display: none }
-  //   .hide-mobile   { display: none }
-  // 窄屏下侧栏会挤掉内容区，所以整块收起；列表的「类型 / 修改时间」两列同理。
+  // ── 页脚避让右下角浮动按钮 ────────────────────────────────────────────
+  // `toolbar/Right.tsx` 的「更多」按钮是 `position:fixed; right:20px; bottom:20px`（32px 宽），
+  // 页脚版本号又右对齐在容器右缘 —— 只要容器贴到视口边就必然被压住。
+  // 容器 max-width 1376、居中，实测 1000/1200/1440 全部重叠、1912 不重叠；
+  // 解方程 `v-52 < v/2+688` 得 v < 1480，即 1480px 以下都需要给按钮留出 56px。
+  "@media (max-width: 1480px)": {
+    'html[data-ad-theme="on"] .ad-footer-bar': {
+      paddingRight: "56px",
+    },
+  },
+
+  // ── 响应式 ────────────────────────────────────────────────────────────
+  // 分两档，都是实测出来的阈值：
+  //   ① ≤1100px —— 6 列排不下了。桌面 6 列固定宽是「类型 110 + 修改时间 150 +
+  //      大小 110 + 操作 140」，加上勾选框与内边距共约 574px，而侧栏还要吃掉
+  //      240px + 32px 间距。实测 901px 视口下名称列只剩 **17px**（文件夹名完全
+  //      看不见，只剩省略号）。所以这两列必须在 1100px 就收起，而不是等到 900px。
+  //      侧栏在这一档保留。
+  //   ② ≤900px —— 手机/竖屏平板。侧栏整块收进抽屉（抽屉由 `MobileMounts` 提供，
+  //      顶栏的汉堡按钮唤起），列表再进一步压缩。
+  //
+  // 除了「收起」，还有三处手机上必须的压缩：
+  //   1. 胶囊搜索框在 390px 下被 flex 压到 26px，⌘K 徽标直接压在输入框上
+  //      → 换成图标按钮，唤起的是同一个搜索弹窗；
+  //   2. 名称列只剩 29px（「大小 110 + 操作 140」把行吃光了）
+  //      → 收窄两列，且操作只留「更多」（触屏没有 hover，原本那组图标既看不见也点不到）；
+  //   3. 页脚版本号被右下角固定的「更多」按钮盖住 → 页脚改竖排。
+  "@media (max-width: 1100px)": {
+    // 只收起「类型 / 修改时间」。这一档仍有鼠标，操作列保持原样（hover 才显形），
+    // 不提前降级成「只留更多」。
+    'html[data-ad-theme="on"] .ad-col-optional': {
+      display: "none !important",
+    },
+  },
+
   "@media (max-width: 900px)": {
     'html[data-ad-theme="on"] .ad-app-container': {
       gridTemplateColumns: "minmax(0, 1fr)",
@@ -594,8 +636,92 @@ export const globalStyles = globalCss({
     'html[data-ad-theme="on"] .ad-sidebar': {
       display: "none",
     },
+    // 单列下横跨整行；即使列数没被覆盖（仍是 240px + 1fr）也会占满两列。
+    'html[data-ad-theme="on"] .ad-main-stage': {
+      gridColumn: "1 / -1",
+    },
+    // 窄屏隐藏开关。注意列表的「类型 / 修改时间」**不**用这个类 ——
+    // 它们在 ≤1100px 就该收起（`.ad-col-optional`）。这里现在只作用于
+    // 顶栏的配色模式按钮（主题已固定为唯一外观，窄屏不再留入口）。
     'html[data-ad-theme="on"] .ad-hide-mobile': {
       display: "none !important",
+    },
+    'html[data-ad-theme="on"] .ad-mobile-only': {
+      display: "flex !important",
+    },
+
+    // ── 顶栏 ───────────────────────────────────────────────────────────
+    'html[data-ad-theme="on"] .ad-search-wrapper': {
+      display: "none",
+    },
+    // 品牌组在窄屏变成弹性项：站名超长时走省略号，而不是把右侧按钮挤出屏幕
+    'html[data-ad-theme="on"] .ad-brand-group': {
+      flex: "1 1 auto",
+      minWidth: "0",
+    },
+    'html[data-ad-theme="on"] .ad-brand-name': {
+      fontSize: "1rem",
+    },
+    'html[data-ad-theme="on"] .ad-nav-inner': {
+      gap: "12px",
+    },
+    'html[data-ad-theme="on"] .ad-nav-btn': {
+      width: "32px",
+      height: "32px",
+      minWidth: "32px",
+    },
+    'html[data-ad-theme="on"] .ad-nav-actions': {
+      gap: "8px",
+    },
+
+    // ── 列表 ───────────────────────────────────────────────────────────
+    // 表头与数据行必须用同一组列宽，否则两行会错位（名称列是 flex:1，会替另一方吃掉差额）。
+    // 所以 `.ad-size`（单元格）与 `.ad-th-size`（表头）要成对出现，操作列同理。
+    'html[data-ad-theme="on"] .ad-size': {
+      width: "58px",
+    },
+    'html[data-ad-theme="on"] .ad-th-size': {
+      width: "58px",
+    },
+    'html[data-ad-theme="on"] .ad-th-actions': {
+      width: "32px",
+    },
+    'html[data-ad-theme="on"] .ad-row-actions': {
+      width: "32px",
+      // 触屏没有 hover，操作组必须常显，否则等于不存在
+      opacity: "1",
+    },
+    // 只保留最后那个「更多」，其余图标在手机上既挤又点不到
+    'html[data-ad-theme="on"] .ad-row-actions .ad-action-icon:not(:last-child)': {
+      display: "none",
+    },
+    'html[data-ad-theme="on"] .ad-name-title': {
+      maxWidth: "none",
+    },
+    'html[data-ad-theme="on"] .ad-list-icon': {
+      width: "34px",
+      height: "34px",
+    },
+    'html[data-ad-theme="on"] .ad-table-head': {
+      padding: "10px 12px",
+    },
+    'html[data-ad-theme="on"] .list-item': {
+      padding: "10px 12px",
+    },
+
+    // ── 工具栏行：上传只留图标，视图切换收紧，把宽度让给面包屑 ──────────
+    'html[data-ad-theme="on"] .ad-btn-label': {
+      display: "none",
+    },
+    'html[data-ad-theme="on"] .ad-toggle-opt': {
+      padding: "6px 8px",
+    },
+
+    // ── 页脚：竖排，避开右下角固定的「更多」按钮 ────────────────────────
+    'html[data-ad-theme="on"] .ad-footer-bar': {
+      flexDirection: "column",
+      alignItems: "flex-start",
+      gap: "4px",
     },
   },
 })

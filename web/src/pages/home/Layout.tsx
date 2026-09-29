@@ -5,6 +5,7 @@ import { notify } from "~/utils"
 import { Body } from "./Body"
 import { Footer } from "./Footer"
 import { Header } from "./header/Header"
+import { MobileMounts } from "./MobileMounts"
 import { Toolbar } from "./toolbar/Toolbar"
 
 const Index = () => {
@@ -17,6 +18,7 @@ const Index = () => {
     <>
       <Header />
       <Toolbar />
+      <MobileMounts />
       <Body />
       <Footer />
     </>

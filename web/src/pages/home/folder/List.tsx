@@ -86,7 +86,9 @@ export const ListTitle = (props: {
   /**
    * 表头单元格：小号大写 + 字间距，对齐设计稿 `.file-table th`。
    *
-   * `hideMobile` 对应设计稿的 `.hide-mobile`（窄屏收起「类型 / 修改时间」两列）；
+   * `hideMobile` 给「类型 / 修改时间」两列加上 `ad-col-optional` ——
+   * 这两列在 ≤1100px 就收起（不是等到 900px，否则 901px 时名称列只剩 17px，
+   * 实测过），详见 theme.ts。
    * 可排序列额外带 `.ad-th-sortable`，用于复刻设计稿的 `th.sortable:hover`。
    */
   const thProps = (
@@ -97,7 +99,7 @@ export const ListTitle = (props: {
     class: [
       "ad-th",
       name ? "ad-th-sortable" : "",
-      hideMobile ? "ad-hide-mobile" : "",
+      hideMobile ? "ad-col-optional" : "",
     ]
       .filter(Boolean)
       .join(" "),
@@ -159,10 +161,23 @@ export const ListTitle = (props: {
       >
         {t("home.obj.modified")}
       </Text>
-      <Text {...thProps("size", "right")} w={AD_COL.size} flexShrink={0}>
+      {/* `ad-th-size` / `ad-th-actions` 供窄屏媒体查询把列宽收窄
+          （大小 110→58，操作 140→32），否则表头会比数据行宽、两行错位。
+          注意「大小」是可排序列，覆盖 class 时必须保留 `ad-th-sortable`。 */}
+      <Text
+        {...thProps("size", "right")}
+        class="ad-th ad-th-sortable ad-th-size"
+        w={AD_COL.size}
+        flexShrink={0}
+      >
         {t("home.obj.size")}
       </Text>
-      <Text {...thProps(undefined, "right")} w={AD_COL.actions} flexShrink={0}>
+      <Text
+        {...thProps(undefined, "right")}
+        class="ad-th ad-th-actions"
+        w={AD_COL.actions}
+        flexShrink={0}
+      >
         {t("home.obj.actions")}
       </Text>
     </HStack>

@@ -27,8 +27,9 @@ import { isMac } from "~/utils/compatibility"
 import { useT, useRouter } from "~/hooks"
 import { SwitchColorMode } from "~/components/SwitchColorMode"
 import { SwitchLanguage } from "~/components/SwitchLanguage"
-import { FiLogOut as LogOut, FiUser as UserIcon } from "solid-icons/fi"
+import { FiLogOut as LogOut, FiMenu, FiUser as UserIcon } from "solid-icons/fi"
 import { IoLanguageOutline } from "solid-icons/io"
+import { openMounts } from "../MobileMounts"
 
 /**
  * 顶部栏。
@@ -74,22 +75,45 @@ export const Header = () => {
     <Center {...STICKY_PROPS} bgColor="$background" class="header" w="$full">
       <Container fullWidth>
         <HStack
+          class="ad-nav-inner"
           py="12px"
           w="$full"
           spacing="$6"
           alignItems="center"
           justifyContent="space-between"
         >
-          {/* 左：品牌（logo + 站名），对应设计稿 .brand */}
+          {/*
+            左：汉堡（仅窄屏）+ 品牌（logo + 站名），对应设计稿 .brand。
+
+            汉堡必须放在 `<a>` 外面 —— 放进品牌链接里，点它就会先跳首页。
+            窄屏下这一组会变成弹性项（见 theme.ts 的 `.ad-brand-group`），
+            站名跟着省略号收缩，把宽度让给右侧按钮。
+          */}
           <HStack
-            as={LinkWithBase}
-            href="/"
-            class="ad-brand"
-            spacing="12px"
+            class="ad-brand-group"
+            spacing="8px"
             alignItems="center"
             flexShrink={0}
-            css={{ textDecoration: "none", color: "inherit" }}
           >
+            <Center
+              as="button"
+              type="button"
+              class="ad-nav-btn ad-mobile-only"
+              aria-label={t("home.theme.sidebar_title")}
+              title={t("home.theme.sidebar_title")}
+              onClick={openMounts}
+            >
+              <Icon as={FiMenu} />
+            </Center>
+            <HStack
+              as={LinkWithBase}
+              href="/"
+              class="ad-brand"
+              spacing="12px"
+              alignItems="center"
+              flexShrink={0}
+              css={{ textDecoration: "none", color: "inherit" }}
+            >
             <Image
               class="ad-brand-mark"
               src={logo()!}
@@ -112,6 +136,7 @@ export const Header = () => {
             >
               {getSetting("site_title")}
             </Text>
+            </HStack>
           </HStack>
 
           {/*
@@ -191,10 +216,28 @@ export const Header = () => {
             </Box>
           </Show>
 
-          {/* 右：主题、语言、用户 */}
+          {/* 右：搜索（窄屏）/ 主题 / 语言 / 用户 */}
           <HStack class="ad-nav-actions" spacing="12px" flexShrink={0}>
             <Show when={objStore.state === State.Folder}>
-              <Center class="ad-nav-btn" title={t("global.switch_color_mode")}>
+              {/*
+                窄屏专用：胶囊搜索框在 390px 下会被压到 26px，⌘K 徽标直接叠在输入框上，
+                所以换成图标按钮 —— 唤起的是同一个搜索弹窗（bus tool=search）。
+              */}
+              <Center
+                as="button"
+                type="button"
+                class="ad-nav-btn ad-mobile-only"
+                aria-label={t("home.search.search")}
+                title={t("home.search.search")}
+                onClick={submitSearch}
+              >
+                <Icon as={BsSearch} />
+              </Center>
+              {/* 主题已固定为唯一外观，窄屏不再留入口 */}
+              <Center
+                class="ad-nav-btn ad-hide-mobile"
+                title={t("global.switch_color_mode")}
+              >
                 <SwitchColorMode />
               </Center>
               <Center class="ad-nav-btn" title={t("global.switch_language")}>

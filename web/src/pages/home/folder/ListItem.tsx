@@ -182,14 +182,14 @@ export const ListItem = (props: { obj: StoreObj; index: number }) => {
             {props.obj.name}
           </Text>
         </HStack>
-        {/* 类型列（窄屏隐藏，对齐设计稿 .hide-mobile） */}
-        <Box as="span" w={AD_COL.type} flexShrink={0} class="ad-hide-mobile">
+        {/* 类型列（`ad-col-optional`：≤1100px 收起，见 theme.ts） */}
+        <Box as="span" w={AD_COL.type} flexShrink={0} class="ad-col-optional">
           <Box as="span" class="ad-tag-badge">
             {tagLabel()}
           </Box>
         </Box>
         <Text
-          class="ad-cell ad-modified ad-hide-mobile"
+          class="ad-cell ad-modified ad-col-optional"
           as="span"
           w={AD_COL.modified}
           flexShrink={0}

@@ -136,8 +136,10 @@ export const Nav = () => {
             leftIcon={<Icon as={AiOutlineCloudUpload} />}
             onClick={() => bus.emit("tool", "upload")}
             transition="all .2s"
+            title={t("home.theme.upload")}
           >
-            {t("home.theme.upload")}
+            {/* 窄屏只留图标，把宽度让给面包屑（见 theme.ts 的 .ad-btn-label） */}
+            <span class="ad-btn-label">{t("home.theme.upload")}</span>
           </Button>
         </Show>
       </HStack>
