@@ -31,12 +31,6 @@ export const initialLocalSettings = [
     options: ["top", "bottom", "none"],
   },
   {
-    key: "show_sidebar",
-    default: "none",
-    type: "select",
-    options: ["none", "visible"],
-  },
-  {
     key: "show_count_msg",
     default: "none",
     type: "select",
@@ -47,11 +41,6 @@ export const initialLocalSettings = [
     default: "static",
     type: "select",
     options: ["static", "sticky", "only_navbar_sticky"],
-  },
-  {
-    key: "grid_item_size",
-    default: "90",
-    type: "number",
   },
   {
     key: "list_item_filename_overflow",

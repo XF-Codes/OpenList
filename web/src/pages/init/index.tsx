@@ -65,7 +65,7 @@ const READY_POLL_MS = 1_000
  * 这里改用 CDN 上的绝对地址：不依赖后端、不依赖 settings，且初始化页面必然
  * 处在「还没配置好站点设置」的状态，用官方 logo 是唯一确定的选项。
  */
-const INIT_LOGO_FALLBACK = "https://res.oplist.org/logo/logo.png"
+const INIT_LOGO_FALLBACK = "https://img.remit.ee/i/IquuGRbwcW4h"
 
 /**
  * 解析配置中的 logo 列表（首行亮色、末行暗色）。
@@ -99,7 +99,7 @@ const Init = () => {
   const [password, setPassword] = createSignal("")
   const [confirmPassword, setConfirmPassword] = createSignal("")
   const [siteTitle, setSiteTitle] = createSignal(
-    getSetting("site_title") || "OpenList",
+    getSetting("site_title") || "小枫云盘",
   )
   const [phase, setPhase] = createSignal<Phase>("idle")
   const [step, setStep] = createSignal<Step>("env")

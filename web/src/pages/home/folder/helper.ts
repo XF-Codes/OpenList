@@ -17,6 +17,21 @@ import { StoreObj } from "~/types"
 
 let selectedCache: StoreObj[] | null = null
 
+/**
+ * 主题模式表格的列宽，对齐设计稿 `.file-table` 的列比例。
+ *
+ * 名称列是弹性列（`flex:1`），其余固定宽度；表头（`List.tsx`）与数据行
+ * （`ListItem.tsx`）共用同一组数值，所以两行的列位置天然对齐，不需要 `<table>`。
+ * 放在 `helper.ts` 里是为了避免 `List ↔ ListItem` 互相 import 形成循环依赖。
+ */
+export const AD_COL = {
+  check: "40px",
+  type: "110px",
+  modified: "150px",
+  size: "110px",
+  actions: "140px",
+} as const
+
 export function useSelectWithMouse() {
   const isMouseSupported = () => !isMobile && checkboxOpen()
   const openWithDoubleClick = () =>

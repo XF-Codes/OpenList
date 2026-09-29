@@ -17,11 +17,40 @@ import (
 	"gorm.io/gorm"
 )
 
+// removedSettingKeys 是需要从库里**硬删除**的历史设置项。
+//
+// 它们曾经存在于 InitialSettings 里，因此升级上来的实例的 settings 表中会有对应
+// 记录。仅仅把它们从 InitialSettings 移除只会走下面的 DEPRECATED 分支 —— 记录还在，
+// 后台设置页仍会显示出来（带一个手动删除按钮）。这些键已经没有任何读取方，
+// 留着只会让用户以为「还有什么可以调」，所以这里在启动时直接清掉。
+var removedSettingKeys = []string{
+	// 主题相关（Aether Drive）：主题已成为唯一外观、不再可配置，全部作废。
+	"theme_enabled",
+	"theme_bg_from",
+	"theme_bg_to",
+	"theme_bg_mid",
+	"theme_bg_angle",
+	"theme_bg_orbs",
+	"theme_font",
+	"theme_card_radius",
+	"theme_card_style",
+	"theme_sidebar_style",
+	"theme_slogan",
+}
+
 func initSettings() {
 	initialSettingItems := InitialSettings()
 	isActive := func(key string) bool {
 		for _, item := range initialSettingItems {
 			if item.Key == key {
+				return true
+			}
+		}
+		return false
+	}
+	isRemoved := func(key string) bool {
+		for _, k := range removedSettingKeys {
+			if k == key {
 				return true
 			}
 		}
@@ -33,12 +62,23 @@ func initSettings() {
 		utils.Log.Fatalf("failed get settings: %+v", err)
 	}
 	settingMap := map[string]*model.SettingItem{}
+	removedAny := false
 	for _, v := range settings {
 		if v.Key == "" {
 			err := db.DeleteSettingItemByKey(v.Key)
 			if err != nil {
 				utils.Log.Errorf("failed delete setting with empty key: %+v", err)
 			}
+			continue
+		}
+		if isRemoved(v.Key) {
+			err := db.DeleteSettingItemByKey(v.Key)
+			if err != nil {
+				utils.Log.Errorf("failed delete removed setting %s: %+v", v.Key, err)
+				continue
+			}
+			utils.Log.Infof("removed deprecated setting: %s", v.Key)
+			removedAny = true
 			continue
 		}
 		if !isActive(v.Key) && v.Flag != model.DEPRECATED {
@@ -49,6 +89,9 @@ func initSettings() {
 			}
 		}
 		settingMap[v.Key] = &v
+	}
+	if removedAny {
+		op.SettingCacheUpdate()
 	}
 	op.MigrationSettingItems = map[string]op.MigrationValueItem{}
 	// create or save setting
@@ -114,8 +157,8 @@ func InitialSettings() []model.SettingItem {
 		{Key: conf.AllowMounted, Value: "true", Type: conf.TypeBool, Group: model.SITE},
 		{Key: conf.RobotsTxt, Value: "User-agent: *\nAllow: /", Type: conf.TypeText, Group: model.SITE},
 		// style settings
-		{Key: conf.Logo, Value: "https://res.oplist.org/logo/logo.svg", MigrationValue: "https://cdn.oplist.org/gh/OpenListTeam/Logo@main/logo.svg", Type: conf.TypeText, Group: model.STYLE},
-		{Key: conf.Favicon, Value: "https://res.oplist.org/logo/logo.svg", MigrationValue: "https://cdn.oplist.org/gh/OpenListTeam/Logo@main/logo.svg", Type: conf.TypeString, Group: model.STYLE},
+		{Key: conf.Logo, Value: "https://img.remit.ee/i/IquuGRbwcW4h", MigrationValue: "https://cdn.oplist.org/gh/OpenListTeam/Logo@main/logo.svg", Type: conf.TypeText, Group: model.STYLE},
+		{Key: conf.Favicon, Value: "https://img.remit.ee/i/IquuGRbwcW4h", MigrationValue: "https://cdn.oplist.org/gh/OpenListTeam/Logo@main/logo.svg", Type: conf.TypeString, Group: model.STYLE},
 		{Key: conf.MainColor, Value: "#1890ff", Type: conf.TypeString, Group: model.STYLE},
 		{Key: "home_icon", Value: "🏠", Type: conf.TypeString, Group: model.STYLE},
 		{Key: "share_icon", Value: "🎁", Type: conf.TypeString, Group: model.STYLE},
@@ -152,7 +195,7 @@ func InitialSettings() []model.SettingItem {
 		//		{Key: conf.PdfViewers, Value: `{
 		//	"pdf.js":"https://openlistteam.github.io/pdf.js/web/viewer.html?file=$url"
 		//}`, Type: conf.TypeText, Group: model.PREVIEW},
-		{Key: "audio_cover", Value: "https://res.oplist.org/logo/logo.svg", MigrationValue: "https://cdn.oplist.org/gh/OpenListTeam/Logo@main/logo.svg", Type: conf.TypeString, Group: model.PREVIEW},
+		{Key: "audio_cover", Value: "https://img.remit.ee/i/IquuGRbwcW4h", MigrationValue: "https://cdn.oplist.org/gh/OpenListTeam/Logo@main/logo.svg", Type: conf.TypeString, Group: model.PREVIEW},
 		{Key: conf.AudioAutoplay, Value: "true", Type: conf.TypeBool, Group: model.PREVIEW},
 		{Key: conf.VideoAutoplay, Value: "true", Type: conf.TypeBool, Group: model.PREVIEW},
 		{Key: conf.PreviewDownloadByDefault, Value: "false", Type: conf.TypeBool, Group: model.PREVIEW},

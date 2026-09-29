@@ -1,110 +1,34 @@
 import { Box } from "@hope-ui/solid"
-import { Motion } from "solid-motionone"
-import { useLocation } from "@solidjs/router"
-import {
-  Show,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  onMount,
-} from "solid-js"
-import { FolderTree, FolderTreeHandler } from "~/components"
-import { useRouter } from "~/hooks"
-import { local, objStore } from "~/store"
-import { objBoxRef } from "./Obj"
+import { MountList } from "./MountList"
 
-function SidebarPanel() {
-  const { to } = useRouter()
-  const location = useLocation()
-
-  const [folderTreeHandler, setFolderTreeHandler] =
-    createSignal<FolderTreeHandler>()
-  const [sideBarRef, setSideBarRef] = createSignal<HTMLDivElement>()
-  const [offsetX, setOffsetX] = createSignal<number | string>(-999)
-
-  const showFullSidebar = () => setOffsetX(0)
-  const resetSidebar = () => {
-    const $objBox = objBoxRef()
-    const $sideBar = sideBarRef()
-    if (!$objBox || !$sideBar) return
-    const gap = $objBox.offsetLeft > 50 ? 16 : 0
-    if ($sideBar.clientWidth < $objBox.offsetLeft - gap) {
-      setOffsetX(0)
-    } else {
-      setOffsetX(`calc(-100% + ${$objBox.offsetLeft}px - ${gap}px)`)
-    }
-  }
-
-  let rafId: number
-
-  onMount(() => {
-    const handler = folderTreeHandler()
-    handler?.setPath(location.pathname)
-    rafId = requestAnimationFrame(resetSidebar)
-    window.addEventListener("resize", resetSidebar)
-    onCleanup(() => window.removeEventListener("resize", resetSidebar))
-  })
-
-  createEffect(
-    on(
-      () => objStore.state,
-      () => {
-        cancelAnimationFrame(rafId)
-        rafId = requestAnimationFrame(resetSidebar)
-      },
-    ),
-  )
-
-  createEffect(
-    on(
-      () => location.pathname,
-      () => {
-        const handler = folderTreeHandler()
-        handler?.setPath(location.pathname)
-      },
-    ),
-  )
-
+/**
+ * 侧栏 —— 常驻的一级挂载点列表。
+ *
+ * 对齐设计稿的 `aside.sidebar`：本身不套卡片底，条目直接浮在页面底色上。
+ * 它是 `Body` 网格里真实的一列（240px），用 `sticky` 吸顶而不是 `fixed` ——
+ * 后者会脱离网格、在宽屏下跑到窗口最左边，和主内容错位。
+ */
+export function Sidebar() {
   return (
     <Box
-      as={Motion.div}
-      initial={{ x: -999 }}
-      animate={{ x: offsetX() }}
-      zIndex="$overlay"
-      pos="fixed"
-      left={3} // width of outline shadow
-      top={3}
-      h="calc(100vh - 6px)"
-      minW={180}
-      p="$2"
-      overflow="auto"
-      shadow="$lg"
-      rounded="$lg"
-      bgColor="white"
-      _dark={{ bgColor: "$neutral3" }}
-      onMouseEnter={showFullSidebar}
-      onMouseLeave={resetSidebar}
-      ref={(el: HTMLDivElement) => setSideBarRef(el)}
+      as="aside"
+      class="ad-sidebar"
+      w="$full"
+      alignSelf="start"
+      pos="sticky"
+      // 顶栏（py 12px + 内容 40px + 1px 描边 ≈ 65px）下方留 24px 呼吸，
+      // 与 `Body` 网格的 my=24px 对齐。改顶栏高度时同步这个值。
+      top="89px"
+      // 高度跟随内容（挂载点少时侧栏就短，页脚不会被顶到屏幕外），
+      // 但不超过视口 —— 超出时由内部的 .ad-nav-scroll 自己滚动。
+      maxH="calc(100vh - 113px)"
+      display="flex"
+      flexDirection="column"
+      overflow="hidden"
     >
-      <FolderTree
-        autoOpen
-        showEmptyIcon
-        showHiddenFolder={false}
-        onChange={(path) => to(path)}
-        handle={(handler) => setFolderTreeHandler(handler)}
-      />
+      <Box class="ad-nav-scroll" flex="1" minH={0} overflow="auto">
+        <MountList />
+      </Box>
     </Box>
-  )
-}
-
-export function Sidebar() {
-  const visible = createMemo(() => local["show_sidebar"] !== "none")
-
-  return (
-    <Show when={visible()}>
-      <SidebarPanel />
-    </Show>
   )
 }

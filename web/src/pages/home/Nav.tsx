@@ -4,12 +4,17 @@ import {
   BreadcrumbLink,
   BreadcrumbProps,
   BreadcrumbSeparator,
+  HStack,
+  Button,
+  Icon,
 } from "@hope-ui/solid"
 import { Link } from "@solidjs/router"
 import { createMemo, For, Show } from "solid-js"
 import { usePath, useRouter, useT } from "~/hooks"
-import { getSetting, local } from "~/store"
-import { encodePath, hoverColor, joinBase } from "~/utils"
+import { getSetting, local, objStore, State, userCan } from "~/store"
+import { encodePath, hoverColor, joinBase, bus } from "~/utils"
+import { AiOutlineCloudUpload } from "solid-icons/ai"
+import { ViewToggle } from "./header/layout"
 
 export const Nav = () => {
   const { pathname, isShare } = useRouter()
@@ -54,8 +59,23 @@ export const Nav = () => {
     }
   })
 
-  return (
-    <Breadcrumb {...stickyProps} background="$background" class="nav" w="$full">
+  /** 是否可以上传（与右下角工具栏的判断保持一致） */
+  const canUpload = createMemo(
+    () =>
+      !isShare() &&
+      objStore.state === State.Folder &&
+      !!objStore.write &&
+      (userCan("write_content") || objStore.write_content_bypass),
+  )
+
+  const breadcrumb = (
+    <Breadcrumb
+      {...stickyProps}
+      class="nav"
+      w="$full"
+      flex="1"
+      fontSize="0.9rem"
+    >
       <For each={paths()}>
         {(name, i) => {
           const isLast = createMemo(() => i() === paths().length - 1)
@@ -97,5 +117,30 @@ export const Nav = () => {
         }}
       </For>
     </Breadcrumb>
+  )
+
+  // 单行「面包屑 + 视图切换 + 上传」。
+  // 视图切换用分段控件（设计稿的 `.view-toggle`），而不是下拉菜单。
+  //
+  // 布局切换按钮只在**这里**渲染一份 —— 顶部栏已移除，避免两处重复。
+  return (
+    <HStack w="$full" spacing="$3" alignItems="center" justifyContent="space-between">
+      {breadcrumb}
+      <HStack spacing="$3" flexShrink={0} alignItems="center">
+        <ViewToggle />
+        <Show when={canUpload()}>
+          <Button
+            class="ad-btn-primary"
+            rounded="8px"
+            size="sm"
+            leftIcon={<Icon as={AiOutlineCloudUpload} />}
+            onClick={() => bus.emit("tool", "upload")}
+            transition="all .2s"
+          >
+            {t("home.theme.upload")}
+          </Button>
+        </Show>
+      </HStack>
+    </HStack>
   )
 }

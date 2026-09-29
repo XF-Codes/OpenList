@@ -3,6 +3,8 @@
     "name": "Name",
     "size": "Size",
     "modified": "Modified",
+    "type": "Type",
+    "actions": "Actions",
     "count": {
       "count": "{{folders}} folders, {{files}} files in total",
       "count_folders": "{{folders}} folders in total",
@@ -243,12 +245,6 @@
       "sticky": "Stick to top of page",
       "only_navbar_sticky": "Only nav bar sticky"
     },
-    "grid_item_size": "Grid item size",
-    "show_sidebar": "Show sidebar",
-    "show_sidebar_options": {
-      "none": "None",
-      "visible": "Visible"
-    },
     "show_count_msg": "Show file count message",
     "show_count_msg_options": {
       "none": "None",
@@ -303,7 +299,8 @@
       "all": "All",
       "folder": "Folder",
       "file": "File"
-    }
+    },
+    "placeholder": "Search files, folders and docs..."
   },
   "fetching_settings_failed": "Failed fetching settings: ",
   "get_current_user_failed": "Failed get current user: ",
@@ -313,5 +310,32 @@
     "overwrite_existing": "Overwrite existing files",
     "skip_existing": "Skip existing files",
     "merge": "Only Copy new files and subdirectories"
+  },
+  "theme": {
+    "upload": "Upload",
+    "sidebar_files": "All files",
+    "root": "Root",
+    "no_mounts": "No mounts yet",
+    "sidebar_title": "Locations",
+    "tags": {
+      "folder": "Folder",
+      "video": "Video",
+      "audio": "Audio",
+      "image": "Image",
+      "text": "Text",
+      "doc": "Doc",
+      "sheet": "Sheet",
+      "slide": "Slide",
+      "pdf": "PDF",
+      "archive": "Archive",
+      "code": "Code",
+      "app": "App",
+      "disk": "Disk",
+      "link": "Link",
+      "other": "File"
+    },
+    "status_ok": "Storage service healthy",
+    "play": "Play",
+    "search_unavailable": "Search index is disabled"
   }
 }

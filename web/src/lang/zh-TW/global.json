@@ -45,5 +45,7 @@
   "menu": "選單",
   "logout": "登出",
   "switch_layout": "切換版面",
+  "switch_color_mode": "切換深淺色",
+  "switch_language": "切換語言",
   "random": "隨機"
 }

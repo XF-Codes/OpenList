@@ -1,4 +1,4 @@
-import { Text, useColorModeValue, VStack, Button } from "@hope-ui/solid"
+import { Text, VStack, Button } from "@hope-ui/solid"
 import {
   createEffect,
   createMemo,
@@ -34,7 +34,6 @@ export { objBoxRef }
 
 export const Obj = () => {
   const t = useT()
-  const cardBg = useColorModeValue("white", "$neutral3")
   const { pathname, searchParams, isShare, to } = useRouter()
   const { handlePathChange, refresh } = usePath()
   const pagination = getPagination()
@@ -81,10 +80,8 @@ export const Obj = () => {
       ref={(el: HTMLDivElement) => setObjBoxRef(el)}
       class="obj-box"
       w="$full"
-      rounded="$xl"
-      bgColor={cardBg()}
-      p="$2"
-      shadow="$lg"
+      bgColor="transparent"
+      p="0"
       spacing="$2"
     >
       <Suspense fallback={<FullLoading />}>

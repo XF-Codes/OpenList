@@ -55,7 +55,7 @@ const HEAD_ANCHOR = "customize head"
 const BODY_ANCHOR = "customize body"
 
 /** index.html 里硬编码的默认图标地址，用于判断服务端是否已经替换过。 */
-const DEFAULT_FAVICON = "https://res.oplist.org/logo/logo.svg"
+const DEFAULT_FAVICON = "https://img.remit.ee/i/IquuGRbwcW4h"
 const DEFAULT_APPLE_TOUCH_ICON = "https://res.oplist.org/logo/logo.png"
 
 /** 管理页路径段（Go 端对应 conf.ManageHtml）。 */

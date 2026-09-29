@@ -189,7 +189,7 @@ func UpdateIndex() {
 	mainColor := setting.GetStr(conf.MainColor)
 	utils.Log.Debug("Applying replacements for default pages...")
 	replaceMap1 := map[string]string{
-		"https://res.oplist.org/logo/logo.svg": favicon,
+		"https://img.remit.ee/i/IquuGRbwcW4h":  favicon,
 		"https://res.oplist.org/logo/logo.png": logo,
 		"Loading...":                           title,
 		"main_color: undefined":                fmt.Sprintf("main_color: '%s'", mainColor),

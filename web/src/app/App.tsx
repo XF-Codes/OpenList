@@ -23,6 +23,7 @@ import {
   r,
 } from "~/utils"
 import { applyCustomize } from "~/utils/customize"
+import { applyTheme } from "~/utils/theme"
 import { MustUser, UserOrGuest } from "./MustUser"
 import "./index.css"
 import { globalStyles } from "./theme"
@@ -69,6 +70,9 @@ const App: Component = () => {
             // customize 占位符是否还在」决定 —— Go 后端在服务端 UpdateIndex() 里
             // 已经把占位符替换掉（含空值），因此天然跳过，不会重复注入。
             applyCustomize()
+            // 外观主题：把 theme_* 设置写成 CSS 变量挂到 <html>。
+            // 必须在 setSettings 之后 —— 它读的就是刚写入的这份设置。
+            applyTheme()
           },
           (e, code) => {
             // 存储未绑定时 settings 被后端中间件以 503 拦截。此时不能把错误

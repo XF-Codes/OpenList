@@ -9,6 +9,13 @@ const GridLayout = () => {
   const { isMouseSupported, registerSelectContainer, captureContentMenu } =
     useSelectWithMouse()
   registerSelectContainer()
+  /**
+   * 列宽下限。
+   *
+   * 对齐设计稿的 `.file-grid`：`minmax(220px, 1fr)` + `gap:16px`。
+   * 实际列宽由容器宽度反推（1088px 容器 → 4 列 → 每列 260px），220 只是下限。
+   */
+  const MIN_COL_WIDTH = 220
   return (
     <>
       <Show when={local["show_count_msg"] === "visible"}>
@@ -22,10 +29,8 @@ const GridLayout = () => {
         oncapture:contextmenu={captureContentMenu}
         class="viselect-container"
         w="$full"
-        gap="$1"
-        templateColumns={`repeat(auto-fill, minmax(${
-          parseInt(local["grid_item_size"]) + 20
-        }px,1fr))`}
+        gap="16px"
+        templateColumns={`repeat(auto-fill, minmax(${MIN_COL_WIDTH}px,1fr))`}
       >
         <For each={objStore.objs}>
           {(obj, i) => {

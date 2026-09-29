@@ -1,5 +1,6 @@
-import { HStack, VStack, Text } from "@hope-ui/solid"
+import { Center, HStack, Icon, VStack, Text } from "@hope-ui/solid"
 import { batch, createEffect, createSignal, For, Show, onMount } from "solid-js"
+import { BsArrowDownShort, BsArrowUpShort } from "solid-icons/bs"
 import { useT, useRouter } from "~/hooks"
 import {
   allChecked,
@@ -8,13 +9,13 @@ import {
   isIndeterminate,
   local,
   objStore,
+  OrderBy,
   selectAll,
   selectedMsg,
   sortObjs,
 } from "~/store"
-import { OrderBy } from "~/store"
-import { Col, cols, ListItem } from "./ListItem"
-import { ItemCheckbox, useSelectWithMouse } from "./helper"
+import { ListItem } from "./ListItem"
+import { AD_COL, ItemCheckbox, useSelectWithMouse } from "./helper"
 import { bus } from "~/utils"
 
 export interface SortState {
@@ -71,29 +72,55 @@ export const ListTitle = (props: {
     }
   })
 
-  const itemProps = (col: Col) => {
-    return {
-      fontWeight: "bold",
-      fontSize: "$sm",
-      color: "$neutral11",
-      textAlign: col.textAlign as any,
-      cursor: "pointer",
-      onClick: () => {
-        if (col.name === orderBy()) {
-          setReverse(!reverse())
-        } else {
-          batch(() => {
-            setOrderBy(col.name as OrderBy)
-            setReverse(false)
-          })
-        }
-      },
+  const toggleSort = (name: OrderBy) => {
+    if (name === orderBy()) {
+      setReverse(!reverse())
+    } else {
+      batch(() => {
+        setOrderBy(name)
+        setReverse(false)
+      })
     }
   }
+
+  /**
+   * 表头单元格：小号大写 + 字间距，对齐设计稿 `.file-table th`。
+   *
+   * `hideMobile` 对应设计稿的 `.hide-mobile`（窄屏收起「类型 / 修改时间」两列）；
+   * 可排序列额外带 `.ad-th-sortable`，用于复刻设计稿的 `th.sortable:hover`。
+   */
+  const thProps = (
+    name?: OrderBy,
+    align: "left" | "right" = "left",
+    hideMobile = false,
+  ) => ({
+    class: [
+      "ad-th",
+      name ? "ad-th-sortable" : "",
+      hideMobile ? "ad-hide-mobile" : "",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    fontWeight: "600",
+    textAlign: align as any,
+    cursor: name ? "pointer" : "default",
+    userSelect: "none" as const,
+    onClick: name ? () => toggleSort(name) : undefined,
+  })
+
+  // 表头：复选框 / 名称 / 类型 / 修改时间 / 大小 / 操作
   return (
-    <HStack class="title" w="$full" p="$2">
-      <HStack w={cols[0].w} spacing="$1">
-        <Show when={!props.disableCheckbox && checkboxOpen()}>
+    <HStack
+      class="title ad-table-head"
+      w="$full"
+      px="18px"
+      py="12px"
+      spacing="0"
+      alignItems="center"
+      borderBottom="1px solid rgba(226,232,240,.8)"
+    >
+      <Show when={!props.disableCheckbox && checkboxOpen()}>
+        <Center w={AD_COL.check} flexShrink={0} justifyContent="flex-start">
           <ItemCheckbox
             checked={allChecked()}
             indeterminate={isIndeterminate()}
@@ -101,22 +128,42 @@ export const ListTitle = (props: {
               selectAll(e.target.checked as boolean)
             }}
           />
-        </Show>
-        {selectedMsg() ? (
-          <Text {...itemProps(cols[0])}>{selectedMsg()}</Text>
-        ) : (
-          <Text {...itemProps(cols[0])}>{t(`home.obj.${cols[0].name}`)}</Text>
-        )}
+        </Center>
+      </Show>
+      <HStack flex="1" minW={0} pr="12px">
+        <Text {...thProps("name")}>
+          {selectedMsg() ? selectedMsg() : t("home.obj.name")}
+          {/*
+            设计稿在「名称」后跟一个排序指示箭头（`.file-table th i`）。
+            未排序时压暗成中性提示，排序中则按 reverse 显示上/下箭头。
+          */}
+          <Show when={!selectedMsg()}>
+            <Icon
+              class="ad-sort-icon"
+              as={reverse() ? BsArrowDownShort : BsArrowUpShort}
+              boxSize="0.7rem"
+              ml="4px"
+              verticalAlign="middle"
+              opacity={orderBy() === "name" ? 1 : 0.45}
+            />
+          </Show>
+        </Text>
       </HStack>
-      <Text w={cols[1].w} {...itemProps(cols[1])}>
-        {t(`home.obj.${cols[1].name}`)}
+      <Text {...thProps(undefined, "left", true)} w={AD_COL.type} flexShrink={0}>
+        {t("home.obj.type")}
       </Text>
       <Text
-        w={cols[2].w}
-        {...itemProps(cols[2])}
-        display={{ "@initial": "none", "@md": "inline" }}
+        {...thProps("modified", "left", true)}
+        w={AD_COL.modified}
+        flexShrink={0}
       >
-        {t(`home.obj.${cols[2].name}`)}
+        {t("home.obj.modified")}
+      </Text>
+      <Text {...thProps("size", "right")} w={AD_COL.size} flexShrink={0}>
+        {t("home.obj.size")}
+      </Text>
+      <Text {...thProps(undefined, "right")} w={AD_COL.actions} flexShrink={0}>
+        {t("home.obj.actions")}
       </Text>
     </HStack>
   )

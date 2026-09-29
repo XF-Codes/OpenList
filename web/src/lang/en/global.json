@@ -45,5 +45,7 @@
   "menu": "Menu",
   "logout": "Logout",
   "switch_layout": "Switch layout",
+  "switch_color_mode": "Switch color mode",
+  "switch_language": "Switch language",
   "random": "Random"
 }

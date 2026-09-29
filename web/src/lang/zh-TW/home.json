@@ -3,6 +3,8 @@
     "name": "名稱",
     "size": "大小",
     "modified": "修改時間",
+    "type": "類型",
+    "actions": "操作",
     "count": {
       "count": "共有 {{folders}} 個文件夾，{{files}} 個文件",
       "count_folders": "共有 {{folders}} 個文件夾",
@@ -243,12 +245,6 @@
       "sticky": "吸附到頁面頂部",
       "only_navbar_sticky": "僅吸附導航欄"
     },
-    "grid_item_size": "網格視圖項目尺寸",
-    "show_sidebar": "顯示側邊欄",
-    "show_sidebar_options": {
-      "none": "隱藏",
-      "visible": "顯示"
-    },
     "show_count_msg": "顯示文件計數信息",
     "show_count_msg_options": {
       "none": "隱藏",
@@ -303,7 +299,8 @@
       "all": "全部",
       "folder": "文件夾",
       "file": "文件"
-    }
+    },
+    "placeholder": "搜尋檔案、資料夾和文件…"
   },
   "fetching_settings_failed": "獲取設置失敗： ",
   "get_current_user_failed": "獲取當前用户失敗：",
@@ -313,5 +310,32 @@
     "overwrite_existing": "覆蓋現有文件",
     "skip_existing": "跳過現有文件",
     "merge": "僅複製新文件和文件夾"
+  },
+  "theme": {
+    "upload": "上傳檔案",
+    "sidebar_files": "全部檔案",
+    "root": "根目錄",
+    "no_mounts": "暫無掛載",
+    "sidebar_title": "位置",
+    "tags": {
+      "folder": "目錄",
+      "video": "影片",
+      "audio": "音訊",
+      "image": "圖片",
+      "text": "文字",
+      "doc": "文件",
+      "sheet": "表格",
+      "slide": "簡報",
+      "pdf": "PDF",
+      "archive": "壓縮檔",
+      "code": "程式碼",
+      "app": "應用",
+      "disk": "映像",
+      "link": "連結",
+      "other": "檔案"
+    },
+    "status_ok": "儲存服務運作正常",
+    "play": "播放",
+    "search_unavailable": "未啟用搜尋索引"
   }
 }
