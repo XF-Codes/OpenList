@@ -9,7 +9,7 @@ import { ObjType, StoreObj } from "~/types"
 import { bus, formatDate, getFileSize } from "~/utils"
 import { getIconByObj } from "~/utils/icon"
 import { getCardColor } from "~/utils/card_color"
-import { ItemCheckbox, useSelectWithMouse } from "./helper"
+import { isFromRowActions, ItemCheckbox, useSelectWithMouse } from "./helper"
 import { RowActions } from "./RowActions"
 
 /**
@@ -92,6 +92,9 @@ export const GridItem = (props: { obj: StoreObj; index: number }) => {
         }}
         on:click={(e: MouseEvent) => {
           e.preventDefault()
+          // 同 ListItem：卡片右上角的操作组走 Solid 委托的 onClick，
+          // 比这里的原生 on:click 晚，必须挡掉，否则点图标会直接进目录。
+          if (isFromRowActions(e)) return
           if (openWithDoubleClick()) return
           if (e.ctrlKey || e.metaKey || e.shiftKey) return
           if (!restoreSelectionCache()) return

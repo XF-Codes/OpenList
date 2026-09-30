@@ -32,6 +32,23 @@ export const AD_COL = {
   actions: "140px",
 } as const
 
+/**
+ * 判断这次点击是否落在行尾/卡片角上的操作组（`.ad-row-actions`）里。
+ *
+ * 为什么需要它：操作按钮用的是 Solid 的 `onClick`，而 Solid 会把 `onClick`
+ * **委托到 `document`** 上统一派发；整行/整卡片的外层却用的是原生 `on:click`
+ * （`on:` 前缀不走委托，直接 `addEventListener` 挂在 `<a>`/`<div>` 上）。
+ * 冒泡顺序是「按钮 → 外层 → … → document」，于是**外层先执行**：
+ * 点「更多」会先触发 `to(pushHref(...))` 跳转，按钮处理器里那句
+ * `stopPropagation()` 等到 document 阶段才跑，已经拦不住了。
+ * 现象就是「三个点点了没反应，反而进了那个目录/文件」。
+ *
+ * 所以在外层点击处理的开头挡一下。注意外层仍需先 `preventDefault()` ——
+ * 否则 `<a href>` 会走浏览器默认跳转。
+ */
+export const isFromRowActions = (e: MouseEvent) =>
+  !!(e.target as Element | null)?.closest?.(".ad-row-actions")
+
 export function useSelectWithMouse() {
   const isMouseSupported = () => !isMobile && checkboxOpen()
   const openWithDoubleClick = () =>

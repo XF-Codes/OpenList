@@ -10,7 +10,7 @@ import { bus, formatDate, getFileSize, showDiskUsage, toReadableUsage } from "~/
 import { getIconByObj } from "~/utils/icon"
 import { getCardColor } from "~/utils/card_color"
 import { ext } from "~/utils/path"
-import { AD_COL, ItemCheckbox, useSelectWithMouse } from "./helper"
+import { AD_COL, isFromRowActions, ItemCheckbox, useSelectWithMouse } from "./helper"
 import { RowActions } from "./RowActions"
 
 export interface Col {
@@ -115,6 +115,9 @@ export const ListItem = (props: { obj: StoreObj; index: number }) => {
         }}
         on:click={(e: MouseEvent) => {
           e.preventDefault()
+          // 操作组（行尾图标）自带 onClick，但 Solid 的 onClick 委托到 document，
+          // 比这里挂在 <a> 上的原生 on:click 晚一拍 —— 不挡掉的话点「更多」会先跳转。
+          if (isFromRowActions(e)) return
           if (openWithDoubleClick()) return
           if (e.ctrlKey || e.metaKey || e.shiftKey) return
           if (!restoreSelectionCache()) return
